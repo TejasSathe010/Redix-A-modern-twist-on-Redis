@@ -9,7 +9,7 @@ import (
 	"bufio"
 	"fmt"
 
-	"github.com/yourusername/redis-like-db/internal/network"
+	"github.com/TejasSathe010/Redix-A-modern-twist-on-Redis/internal/network"
 )
 
 type Slave struct {
