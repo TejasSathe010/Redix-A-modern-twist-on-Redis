@@ -1,0 +1,43 @@
+# Binaries and executables
+*.exe
+*.out
+*.app
+*.dll
+*.so
+*.dylib
+
+# Go build artifacts
+/bin/
+/pkg/
+/vendor/
+/*.test
+
+# Dependency files
+go.sum
+go.work.sum
+
+# Editor & IDE files
+*.swp
+*~
+.vscode/
+.idea/
+*.iml
+
+# Logs and temporary files
+*.log
+*.tmp
+*.cache
+*.pid
+*.gz
+
+# Test and coverage files
+*.cover
+*.cov
+cover.out
+
+# Docker & CI/CD
+docker-compose.override.yml
+
+# MacOS & Linux system files
+.DS_Store
+*.DS_Store
