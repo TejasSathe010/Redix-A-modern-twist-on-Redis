@@ -52,7 +52,7 @@ func (c *Connection) handleCommands(handler CommandHandler) {
 			continue
 		}
 
-		args, err := c.parser.ParseCommand()
+		args, err := c.parser.ParseCommand(line)
 		if err != nil {
 			c.writeError(err.Error())
 			continue
@@ -71,22 +71,6 @@ func (c *Connection) handleCommands(handler CommandHandler) {
 	}
 }
 
-func (c *Connection) writeResponse(response interface{}) {
-	err := c.parser.WriteResponse(c.writer, response)
-	if err != nil {
-		fmt.Printf("Error writing response: %v\n", err)
-		c.Close()
-		return
-	}
-
-	err = c.writer.Flush()
-	if err != nil {
-		fmt.Printf("Error flushing writer: %v\n", err)
-		c.Close()
-		return
-	}
-}
-
 func (c *Connection) writeError(message string) {
 	_, err := fmt.Fprintf(c.writer, "-ERR %s\r\n", message)
 	if err != nil {
@@ -95,8 +79,22 @@ func (c *Connection) writeError(message string) {
 		return
 	}
 
-	err = c.writer.Flush()
+	if err := c.writer.Flush(); err != nil {
+		fmt.Printf("Error flushing writer: %v\n", err)
+		c.Close()
+		return
+	}
+}
+
+func (c *Connection) writeResponse(response interface{}) {
+	err := c.parser.WriteResponse(c.writer, response)
 	if err != nil {
+		fmt.Printf("Error writing response: %v\n", err)
+		c.Close()
+		return
+	}
+
+	if err := c.writer.Flush(); err != nil {
 		fmt.Printf("Error flushing writer: %v\n", err)
 		c.Close()
 		return

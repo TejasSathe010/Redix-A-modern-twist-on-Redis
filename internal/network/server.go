@@ -93,8 +93,7 @@ func (s *Server) handleConnection(conn net.Conn) {
 			// Parse Redis protocol
 			args, err := parseRedisCommand(line)
 			if err != nil {
-				writeError(writer, "ERR Invalid command format")
-				continue
+				writeError(writer, "Invalid command format")
 			}
 
 			// Create context with timeout
@@ -105,7 +104,6 @@ func (s *Server) handleConnection(conn net.Conn) {
 			response, err := s.handler.HandleCommand(ctx, args)
 			if err != nil {
 				writeError(writer, err.Error())
-				continue
 			}
 
 			// Write response

@@ -102,38 +102,9 @@ func (l *LSMTree) mergeLevel(srcLevel, destLevel int) {
 	// and then remove them from srcLevel
 }
 
-type MemTable struct {
-	data map[string]interface{}
-	mu   sync.RWMutex
-}
-
-func NewMemTable() *MemTable {
-	return &MemTable{
-		data: make(map[string]interface{}),
-	}
-}
-
-func (m *MemTable) Set(key string, value interface{}) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	m.data[key] = value
-}
-
-func (m *MemTable) Get(key string) (interface{}, bool) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	value, exists := m.data[key]
-	return value, exists
-}
-
-func (m *MemTable) Delete(key string) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	delete(m.data, key)
-}
-
-func (m *MemTable) Size() int {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	return len(m.data)
+// Add Get method to DiskStorage
+func (d *DiskStorage) Get(key string) (interface{}, bool) {
+	// Implement logic to retrieve value from disk storage
+	// This is a placeholder implementation
+	return nil, false
 }

@@ -5,7 +5,7 @@ import (
 )
 
 type Set struct {
-	mu     sync.RWMutex
+	mu       sync.RWMutex
 	elements map[interface{}]struct{}
 }
 
@@ -35,7 +35,8 @@ func (s *Set) Contains(value interface{}) bool {
 }
 
 func (s *Set) Members() []interface{} {
-	s.mu.RLockdefer s.mu.RUnlock()
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	members := make([]interface{}, 0, len(s.elements))
 	for value := range s.elements {
 		members = append(members, value)
@@ -44,7 +45,8 @@ func (s *Set) Members() []interface{} {
 }
 
 func (s *Set) Cardinality() int {
-	s.mu.RLockdefer s.mu.RUnlock()
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	return len(s.elements)
 }
 

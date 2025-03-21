@@ -107,18 +107,18 @@ func (a *Authenticator) hashPassword(password string) ([]byte, error) {
 	}
 
 	// Argon2 parameters (adjust based on security requirements)
-	timeCost := 1
-	memoryCost := 64 * 1024
-	threads := 4
-	hashLen := 32
+	timeCost := uint32(1)
+	memoryCost := uint32(64 * 1024)
+	threads := uint8(4)
+	hashLen := uint32(32)
 
 	// Hash the password
 	hash := argon2.IDKey([]byte(password), a.salt, timeCost, memoryCost, threads, hashLen)
 
 	// Encode salt and hash using base64 for storage
 	var buf [128]byte
-	binary.BigEndian.PutUint32(buf[0:4], uint32(timeCost))
-	binary.BigEndian.PutUint32(buf[4:8], uint32(memoryCost))
+	binary.BigEndian.PutUint32(buf[0:4], timeCost)
+	binary.BigEndian.PutUint32(buf[4:8], memoryCost)
 	binary.BigEndian.PutUint32(buf[8:12], uint32(threads))
 	copy(buf[12:28], a.salt)
 	copy(buf[28:60], hash)
@@ -138,13 +138,13 @@ func (a *Authenticator) verifyPassword(password, hash string) bool {
 	// Extract parameters and salt
 	var params [12]byte
 	copy(params[:], data[0:12])
-	timeCost := int(binary.BigEndian.Uint32(params[0:4]))
-	memoryCost := int(binary.BigEndian.Uint32(params[4:8]))
-	threads := int(binary.BigEndian.Uint32(params[8:12]))
+	timeCost := binary.BigEndian.Uint32(params[0:4])
+	memoryCost := binary.BigEndian.Uint32(params[4:8])
+	threads := binary.BigEndian.Uint32(params[8:12])
 	salt := data[12:28]
 
 	// Hash the provided password with the same parameters and salt
-	comparisonHash := argon2.IDKey([]byte(password), salt, timeCost, memoryCost, threads, 32)
+	comparisonHash := argon2.IDKey([]byte(password), salt, timeCost, memoryCost, uint8(threads), 32)
 
 	// Compare the hashes
 	return subtle.ConstantTimeCompare(data[28:60], comparisonHash) == 1

@@ -1,8 +1,6 @@
 package datastructures
 
 import (
-	"container/heap"
-	"fmt"
 	"sort"
 	"sync"
 )
@@ -19,23 +17,27 @@ func NewSortedSet() *SortedSet {
 }
 
 func (s *SortedSet) Add(member string, score float64) {
-	s.mu.Lockdefer s.mu.Unlock()
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.members[member] = score
 }
 
 func (s *SortedSet) Remove(member string) {
-	s.mu.Lockdefer s.mu.Unlock()
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	delete(s.members, member)
 }
 
 func (s *SortedSet) GetScore(member string) (float64, bool) {
-	s.mu.RLockdefer s.mu.RUnlock()
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	score, exists := s.members[member]
 	return score, exists
 }
 
 func (s *SortedSet) Range(min, max float64, offset, count int) []string {
-	s.mu.RLockdefer s.mu.RUnlock()
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 
 	type scoredMember struct {
 		score  float64
@@ -73,12 +75,14 @@ func (s *SortedSet) Range(min, max float64, offset, count int) []string {
 }
 
 func (s *SortedSet) ZCard() int {
-	s.mu.RLockdefer s.mu.RUnlock()
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	return len(s.members)
 }
 
 func (s *SortedSet) ZRank(member string) int {
-	s.mu.RLockdefer s.mu.RUnlock()
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 
 	type scoredMember struct {
 		score  float64
@@ -106,7 +110,8 @@ func (s *SortedSet) ZRank(member string) int {
 }
 
 func (s *SortedSet) ZRevRange(min, max float64, offset, count int) []string {
-	s.mu.RLockdefer s.mu.RUnlock()
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 
 	type scoredMember struct {
 		score  float64

@@ -2,10 +2,9 @@ package storage
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"sync"
-
-	"github.com/go-redis/redis/v8"
 )
 
 type InMemoryStore struct {
@@ -48,7 +47,7 @@ func NewCommandHandler(store *InMemoryStore) *CommandHandler {
 
 func (h *CommandHandler) HandleCommand(ctx context.Context, args []string) (interface{}, error) {
 	if len(args) == 0 {
-		return nil, redis.ErrWrongNumberOfArgs
+		return nil, fmt.Errorf("unknown command")
 	}
 
 	command := strings.ToUpper(args[0])
@@ -56,26 +55,33 @@ func (h *CommandHandler) HandleCommand(ctx context.Context, args []string) (inte
 	switch command {
 	case "SET":
 		if len(args) < 3 {
-			return nil, redis.ErrWrongNumberOfArgs
+			return nil, fmt.Errorf("wrong number of arguments for SET")
 		}
 		h.store.Set(args[1], strings.Join(args[2:], " "))
 		return "OK", nil
+
 	case "GET":
 		if len(args) != 2 {
-			return nil, redis.ErrWrongNumberOfArgs
+			return nil, fmt.Errorf("wrong number of arguments for GET")
 		}
 		value, exists := h.store.Get(args[1])
 		if !exists {
-			return nil, redis.Nil
+			return nil, nil // Return nil to indicate key doesn't exist (no error)
 		}
 		return value, nil
+
 	case "DEL":
 		if len(args) < 2 {
-			return nil, redis.ErrWrongNumberOfArgs
+			return nil, fmt.Errorf("wrong number of arguments for DEL")
 		}
-		h.store.Delete(args[1])
-		return 1, nil
+		key := args[1]
+		if _, exists := h.store.Get(key); exists {
+			h.store.Delete(key)
+			return int64(1), nil
+		}
+		return int64(0), nil
+
 	default:
-		return nil, redis.ErrUnknownCommand
+		return nil, fmt.Errorf("unknown command: %s", command)
 	}
 }

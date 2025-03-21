@@ -51,7 +51,8 @@ func (s *Slave) SyncWithMaster(ctx context.Context) error {
 
 	// Read and process the command log from master
 	for {
-		line, err := parser.Reader.ReadString('\n')
+		// Use the ReadLine method from the ProtocolParser
+		line, err := parser.ReadLine()
 		if err != nil {
 			if err != io.EOF {
 				return err

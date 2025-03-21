@@ -19,6 +19,7 @@ type PersistenceLayer struct {
 
 type MemTable struct {
 	data map[string]interface{}
+	mu   sync.RWMutex
 }
 
 func NewPersistenceLayer(baseDir string) (*PersistenceLayer, error) {
@@ -222,7 +223,7 @@ func recoverFromWAL(walPath string, memTable *MemTable) error {
 			var ts uint64
 			ts, pos = binary.Uvarint(buf[pos:])
 			if pos == 0 {
-				return fmt.Errorf("invalid WAL record")
+				return fmt.Errorf("invalid WAL record", ts)
 			}
 
 			// Read operation type
@@ -284,4 +285,40 @@ func recoverFromWAL(walPath string, memTable *MemTable) error {
 	}
 
 	return nil
+}
+
+// NewMemTable creates a new instance of MemTable
+func NewMemTable() *MemTable {
+	return &MemTable{
+		data: make(map[string]interface{}),
+	}
+}
+
+// Set adds or updates a key-value pair in the MemTable
+func (m *MemTable) Set(key string, value interface{}) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.data[key] = value
+}
+
+// Get retrieves a value by key from the MemTable
+func (m *MemTable) Get(key string) (interface{}, bool) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	value, exists := m.data[key]
+	return value, exists
+}
+
+// Delete removes a key-value pair from the MemTable
+func (m *MemTable) Delete(key string) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	delete(m.data, key)
+}
+
+// Size returns the number of key-value pairs in the MemTable
+func (m *MemTable) Size() int {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return len(m.data)
 }

@@ -5,7 +5,7 @@ import (
 )
 
 type List struct {
-	mu     sync.RWMutex
+	mu       sync.RWMutex
 	elements []interface{}
 }
 
@@ -57,7 +57,8 @@ func (l *List) Len() int {
 }
 
 func (l *List) Range(start, stop int) []interface{} {
-	l.mu.RLockdefer l.mu.RUnlock()
+	l.mu.RLock()
+	defer l.mu.RUnlock()
 	if start < 0 || stop > len(l.elements) || start > stop {
 		return nil
 	}
