@@ -12,7 +12,6 @@ A high-performance, Redis-compatible in-memory database implemented in Go (Golan
 7. [Design Decisions](#design-decisions)
 8. [Contributing](#contributing)
 9. [License](#license)
-10. [Contact](#contact)
 
 ## Features
 
