@@ -1,4 +1,3 @@
-```markdown
 # Redix A modern twist on Redis in Go (Golang)
 
 A high-performance, Redis-compatible in-memory database implemented in Go (Golang) with support for advanced data structures, persistence, replication, and clustering.
