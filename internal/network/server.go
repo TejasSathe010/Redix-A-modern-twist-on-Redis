@@ -15,7 +15,7 @@ type Server struct {
 	addr          string
 	handler       CommandHandler
 	shutdownCtx   context.Context
-	cancelFunc    context.CancelFunc // Added to store the cancel function
+	cancelFunc    context.CancelFunc
 	shutdownMutex sync.Mutex
 }
 
@@ -37,7 +37,6 @@ func (s *Server) Start() error {
 	}
 	defer listener.Close()
 
-	// Create context and cancel function
 	shutdownCtx, cancelFunc := context.WithCancel(context.Background())
 	s.shutdownCtx = shutdownCtx
 	s.cancelFunc = cancelFunc
@@ -96,24 +95,20 @@ func (s *Server) handleConnection(conn net.Conn) {
 				writeError(writer, "Invalid command format")
 			}
 
-			// Create context with timeout
 			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer cancel()
 
-			// Handle command
 			response, err := s.handler.HandleCommand(ctx, args)
 			if err != nil {
 				writeError(writer, err.Error())
 			}
 
-			// Write response
 			writeResponse(writer, response)
 		}
 	}
 }
 
 func parseRedisCommand(data string) ([]string, error) {
-	// Remove carriage return
 	data = strings.TrimSuffix(data, "\r\n")
 
 	// Split by spaces, but handle quotes

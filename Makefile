@@ -9,7 +9,7 @@ build:
 
 # Run the server
 run:
-	go run cmd/server/main.go
+	go run cmd/server/main.go --config config/default.json
 
 # Run tests
 test:

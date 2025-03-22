@@ -6,23 +6,25 @@
 NUM_NODES=3
 BASE_PORT=6379
 DATA_DIR="./data"
+CONFIG_DIR="./config"
 
-# Create data directory if it doesn't exist
+# Create data and config directories if they don't exist
 mkdir -p $DATA_DIR
+mkdir -p $CONFIG_DIR
 
 # Generate configuration files for each node
 echo "Generating configuration files..."
 for i in $(seq 0 $(($NUM_NODES - 1))); do
     port=$(($BASE_PORT + $i))
-    cat > "config/node$i.json" << EOF
+    cat > "$CONFIG_DIR/node$i.json" << EOF
 {
     "server": {
         "addr": ":$port",
         "mode": "cluster",
         "cluster_nodes": [
             "localhost:$BASE_PORT",
-            "localhost:$($BASE_PORT + 1)",
-            "localhost:$($BASE_PORT + 2)"
+            "localhost:$((BASE_PORT + 1))",
+            "localhost:$((BASE_PORT + 2))"
         ]
     },
     "storage": {
@@ -37,7 +39,7 @@ echo "Starting cluster nodes..."
 for i in $(seq 0 $(($NUM_NODES - 1))); do
     port=$(($BASE_PORT + $i))
     echo "Starting node $i on port $port..."
-    go run cmd/server/main.go --config "config/node$i.json" &
+    go run cmd/server/main.go --config "$CONFIG_DIR/node$i.json" &
 done
 
 echo "Cluster started with $NUM_NODES nodes."

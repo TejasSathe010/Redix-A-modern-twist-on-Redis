@@ -1,0 +1,10 @@
+{
+    "server": {
+        "addr": ":6388",
+        "mode": "single",
+        "cluster_nodes": []
+    },
+    "storage": {
+        "dir": "./data"
+    }
+}
